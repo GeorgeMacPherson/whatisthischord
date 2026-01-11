@@ -50,22 +50,6 @@ export default function ChordApp() {
     return chordTonesFromRoot(best.rootPc, best.intervalsFromRoot, preferFlats);
   }, [parsed, best, preferFlats]);
 
-  // --- TS narrowing helpers (prevents "message does not exist" errors) ---
-  const errorPanel = useMemo(() => {
-    if (parsed.ok) return null;
-    return (
-      <div className="panel">
-        <div className="label">Hmm.</div>
-        <div style={{ marginTop: 6 }}>{parsed.message}</div>
-        {parsed.warnings.length > 0 && (
-          <div className="small" style={{ marginTop: 8 }}>
-            {parsed.warnings.join(" · ")}
-          </div>
-        )}
-      </div>
-    );
-  }, [parsed]);
-
   async function copyText(label: string, text: string) {
     if (!text) return;
     try {
@@ -94,7 +78,8 @@ export default function ChordApp() {
         <h1>What Chord Is This?</h1>
         <div className="subtitle">
           Type notes. Get a chord name. Try:{" "}
-          <span className="mono">C E G B-flat or C E G Bb</span>
+          <span className="mono">C E G B-flat</span> or{" "}
+          <span className="mono">C E G Bb</span>
         </div>
       </header>
 
@@ -125,16 +110,76 @@ export default function ChordApp() {
         </div>
 
         <div style={{ marginTop: 18 }}>
-          {/* Error view */}
-          {errorPanel}
+  {!parsed.ok ? (
+    <div className="panel">
+      <div className="label">Hmm.</div>
+      <div style={{ marginTop: 6 }}>{parsed.error}</div>
+    </div>
+  ) : (
+    <>
+      <div className="label">Normalized notes</div>
+      <div style={{ marginTop: 6 }} className="mono">
+        {normalizedNotes}
+      </div>
 
-          {/* Success view */}
-          {parsed.ok && (
-            <>
-              <div className="label">Normalized notes</div>
-              <div style={{ marginTop: 6 }} className="mono">
-                {normalizedNotes}
+      {best && chordTones && (
+        <>
+          <div className="label" style={{ marginTop: 14 }}>
+            Chord tones (from root)
+          </div>
+          <div style={{ marginTop: 6 }} className="mono">
+            {chordTones}
+          </div>
+        </>
+      )}
+
+      {parsed.warnings.length > 0 && (
+        <div className="small">{parsed.warnings.join(" · ")}</div>
+      )}
+
+      <div className="panel" style={{ marginTop: 16 }}>
+        <div className="label">Best match</div>
+        <div className="big">{best ? best.name : "No confident match"}</div>
+
+        {best && (
+          <div className="small">
+            Intervals from root:{" "}
+            <span className="mono">{best.intervalsFromRoot.join(", ")}</span>
+            {best.missing.length > 0 && (
+              <>
+                {" "}
+                · Missing: <span className="mono">{best.missing.join(", ")}</span>
+              </>
+            )}
+            {best.extras.length > 0 && (
+              <>
+                {" "}
+                · Extra: <span className="mono">{best.extras.join(", ")}</span>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {candidates.length > 1 && (
+        <div style={{ marginTop: 16 }}>
+          <div className="label">Also could be</div>
+          <div className="list">
+            {candidates.slice(1).map((c) => (
+              <div key={c.name} className="item">
+                <div className="itemTitle">{c.name}</div>
+                <div className="small">
+                  Score: {c.score} · Intervals:{" "}
+                  <span className="mono">{c.intervalsFromRoot.join(", ")}</span>
+                </div>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  )}
+</div>
 
               {best && chordTones && (
                 <>

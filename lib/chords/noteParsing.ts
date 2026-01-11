@@ -1,6 +1,6 @@
 export type ParseResult =
   | { ok: true; notes: number[]; normalizedInput: string; warnings: string[] }
-  | { ok: false; error: string };
+  | { ok: false; message: string; warnings: string[] };
 
 const NOTE_TO_PC: Record<string, number> = {
   C: 0,
@@ -80,7 +80,13 @@ export function parseNotesInput(input: string): ParseResult {
       /\b([a-g])([b#])\b/g,
       (_, note, acc) => `${note.toUpperCase()}${acc}`
     );
-  if (!raw) return { ok: false, error: "Type some notes (e.g., C E G Bb)." };
+
+  if (!raw)
+    return {
+      ok: false,
+      message: "Type some notes (e.g., C E G Bb).",
+      warnings: [],
+    };
 
   const tokens = raw
     .split(/[\s,]+/g)
@@ -88,7 +94,11 @@ export function parseNotesInput(input: string): ParseResult {
     .filter(Boolean);
 
   if (tokens.length === 0)
-    return { ok: false, error: "I couldn't find any notes in that input." };
+    return {
+      ok: false,
+      message: "I couldn't find any notes in that input.",
+      warnings: [],
+    };
 
   const pcs: number[] = [];
   const warnings: string[] = [];
@@ -113,7 +123,11 @@ export function parseNotesInput(input: string): ParseResult {
 
   const unique = Array.from(new Set(pcs));
   if (unique.length < 2)
-    return { ok: false, error: "Please enter at least two distinct notes." };
+    return {
+      ok: false,
+      message: "Please enter at least two distinct notes.",
+      warnings,
+    };
 
   return {
     ok: true,
