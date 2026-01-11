@@ -50,24 +50,6 @@ export default function ChordApp() {
     return chordTonesFromRoot(best.rootPc, best.intervalsFromRoot, preferFlats);
   }, [parsed, best, preferFlats]);
 
-  // --- TS narrowing helpers (prevents "message does not exist" errors) ---
-  const errorPanel = useMemo(() => {
-    if (parsed.ok) return null;
-    return (
-      <div className="panel">
-        <div className="label">Hmm.</div>
-        <div style={{ marginTop: 6 }}>
-          {"message" in parsed ? parsed.message : (parsed as any).error}
-        </div>
-        {parsed.warnings.length > 0 && (
-          <div className="small" style={{ marginTop: 8 }}>
-            {parsed.warnings.join(" · ")}
-          </div>
-        )}
-      </div>
-    );
-  }, [parsed]);
-
   async function copyText(label: string, text: string) {
     if (!text) return;
     try {
@@ -96,7 +78,8 @@ export default function ChordApp() {
         <h1>What Chord Is This?</h1>
         <div className="subtitle">
           Type notes. Get a chord name. Try:{" "}
-          <span className="mono">C E G B-flat or C E G Bb</span>
+          <span className="mono">C E G B-flat</span> or{" "}
+          <span className="mono">C E G Bb</span>
         </div>
       </header>
 
@@ -127,11 +110,12 @@ export default function ChordApp() {
         </div>
 
         <div style={{ marginTop: 18 }}>
-          {/* Error view */}
-          {errorPanel}
-
-          {/* Success view */}
-          {parsed.ok && (
+          {!parsed.ok ? (
+            <div className="panel">
+              <div className="label">Hmm.</div>
+              <div style={{ marginTop: 6 }}>{parsed.error}</div>
+            </div>
+          ) : (
             <>
               <div className="label">Normalized notes</div>
               <div style={{ marginTop: 6 }} className="mono">
