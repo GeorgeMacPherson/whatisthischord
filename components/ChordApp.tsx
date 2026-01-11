@@ -56,7 +56,9 @@ export default function ChordApp() {
     return (
       <div className="panel">
         <div className="label">Hmm.</div>
-        <div style={{ marginTop: 6 }}>{parsed.message}</div>
+        <div style={{ marginTop: 6 }}>
+          {"message" in parsed ? parsed.message : (parsed as any).error}
+        </div>
         {parsed.warnings.length > 0 && (
           <div className="small" style={{ marginTop: 8 }}>
             {parsed.warnings.join(" · ")}
