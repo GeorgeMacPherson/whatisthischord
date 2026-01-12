@@ -105,171 +105,187 @@ export default function ChordApp() {
     window.history.replaceState({}, "", u.toString());
   }
 
-  return (
-    <div className="container">
-      <header>
-        <h1>What Chord Is This?</h1>
-        <div className="subtitle">
-          Switch between entering <span className="mono">notes</span> or a <span className="mono">chord symbol</span>.
-        </div>
-      </header>
+return (
+  <div className="container">
+    <header>
+      <h1>What Chord Is This?</h1>
+      <div className="subtitle">
+        Switch between entering <span className="mono">notes</span> or a{" "}
+        <span className="mono">chord symbol</span>.
+      </div>
+    </header>
 
-      <div className="card">
-        {/* Toggle */}
-<div className="row" style={{ marginBottom: 12 }}>
-  <div className="seg" data-active={mode}>
-    <div className="segTrack" />
-    <div className="segThumb" />
-    <button
-      type="button"
-      className="segBtn"
-      onClick={() => setMode("notes")}
-      aria-pressed={mode === "notes"}
-    >
-      Notes → Chord
-    </button>
-    <button
-      type="button"
-      className="segBtn"
-      onClick={() => setMode("chord")}
-      aria-pressed={mode === "chord"}
-    >
-      Chord → Notes
-    </button>
-  </div>
-</div>
-        </div>
-
-        {/* Input */}
-        <div className="label">{mode === "notes" ? "Notes" : "Chord symbol"}</div>
-
-        {mode === "notes" ? (
-          <input
-            value={notesInput}
-            onChange={(e) => setNotesInput(e.target.value)}
-            placeholder="C E G Bb"
-            className="input"
-            autoCapitalize="off"
-            autoCorrect="off"
-            spellCheck={false}
-          />
-        ) : (
-          <input
-            value={chordInput}
-            onChange={(e) => setChordInput(e.target.value)}
-            placeholder="C7, F#m7b5, Bbmaj7"
-            className="input"
-            autoCapitalize="off"
-            autoCorrect="off"
-            spellCheck={false}
-          />
-        )}
-
-        <div className="row">
+    <div className="card">
+      {/* Toggle */}
+      <div className="row" style={{ marginBottom: 12 }}>
+        <div className="seg" data-active={mode}>
+          <div className="segTrack" />
+          <div className="segThumb" />
           <button
-            className="btn"
-            onClick={() => copyText(mode === "notes" ? "Chord" : "Notes", mode === "notes" ? best?.name ?? "" : chordTonesChordMode ?? "")}
-            disabled={mode === "notes" ? !best : !chordTonesChordMode}
+            type="button"
+            className="segBtn"
+            onClick={() => setMode("notes")}
+            aria-pressed={mode === "notes"}
           >
-            Copy {mode === "notes" ? "chord" : "notes"}
+            Notes → Chord
           </button>
-
-          <button className="btn" onClick={onShare} disabled={mode === "notes" ? !parsedNotes.ok : !parsedChord.ok}>
-            Copy share link
+          <button
+            type="button"
+            className="segBtn"
+            onClick={() => setMode("chord")}
+            aria-pressed={mode === "chord"}
+          >
+            Chord → Notes
           </button>
-
-          {copied && <span className="pill">Copied {copied} ✅</span>}
         </div>
+      </div>
 
-        {/* Output */}
-        <div style={{ marginTop: 18 }}>
-          {mode === "notes" ? (
-            !parsedNotes.ok ? (
-              <div className="panel">
-                <div className="label">Hmm.</div>
-                <div style={{ marginTop: 6 }}>{parsedNotes.message}</div>
-                {parsedNotes.warnings.length > 0 && (
-                  <div className="small" style={{ marginTop: 8 }}>
-                    {parsedNotes.warnings.join(" · ")}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <>
-                <div className="label">Normalized notes</div>
-                <div style={{ marginTop: 6 }} className="mono">
-                  {normalizedNotes}
-                </div>
+      {/* Input */}
+      <div className="label">{mode === "notes" ? "Notes" : "Chord symbol"}</div>
 
-                {best && chordTonesNotesMode && (
-                  <>
-                    <div className="label" style={{ marginTop: 14 }}>
-                      Chord tones (from root)
-                    </div>
-                    <div style={{ marginTop: 6 }} className="mono">
-                      {chordTonesNotesMode}
-                    </div>
-                  </>
-                )}
+      {mode === "notes" ? (
+        <input
+          value={notesInput}
+          onChange={(e) => setNotesInput(e.target.value)}
+          placeholder="C E G Bb"
+          className="input"
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
+        />
+      ) : (
+        <input
+          value={chordInput}
+          onChange={(e) => setChordInput(e.target.value)}
+          placeholder="C7, F#m7b5, Bbmaj7"
+          className="input"
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
+        />
+      )}
 
-                {parsedNotes.warnings.length > 0 && (
-                  <div className="small" style={{ marginTop: 8 }}>
-                    {parsedNotes.warnings.join(" · ")}
-                  </div>
-                )}
-
-                <div className="panel" style={{ marginTop: 16 }}>
-                  <div className="label">Best match</div>
-                  <div className="big">{best ? best.name : "No confident match"}</div>
-                </div>
-
-                {candidates.length > 1 && (
-                  <div style={{ marginTop: 16 }}>
-                    <div className="label">Also could be</div>
-                    <div className="list">
-                      {candidates.slice(1).map((c) => (
-                        <div key={c.name} className="item">
-                          <div className="itemTitle">{c.name}</div>
-                          <div className="small">
-                            Score: {c.score} · Intervals: <span className="mono">{c.intervalsFromRoot.join(", ")}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </>
+      <div className="row">
+        <button
+          className="btn"
+          onClick={() =>
+            copyText(
+              mode === "notes" ? "Chord" : "Notes",
+              mode === "notes" ? best?.name ?? "" : chordTonesChordMode ?? ""
             )
-          ) : !parsedChord.ok ? (
+          }
+          disabled={mode === "notes" ? !best : !chordTonesChordMode}
+        >
+          Copy {mode === "notes" ? "chord" : "notes"}
+        </button>
+
+        <button
+          className="btn"
+          onClick={onShare}
+          disabled={mode === "notes" ? !parsedNotes.ok : !parsedChord.ok}
+        >
+          Copy share link
+        </button>
+
+        {copied && <span className="pill">Copied {copied} ✅</span>}
+      </div>
+
+      {/* Output */}
+      <div style={{ marginTop: 18 }}>
+        {mode === "notes" ? (
+          !parsedNotes.ok ? (
             <div className="panel">
               <div className="label">Hmm.</div>
-              <div style={{ marginTop: 6 }}>{parsedChord.message}</div>
-              {parsedChord.warnings.length > 0 && (
+              <div style={{ marginTop: 6 }}>{parsedNotes.message}</div>
+              {parsedNotes.warnings.length > 0 && (
                 <div className="small" style={{ marginTop: 8 }}>
-                  {parsedChord.warnings.join(" · ")}
+                  {parsedNotes.warnings.join(" · ")}
                 </div>
               )}
             </div>
           ) : (
             <>
-              <div className="label">Chord tones</div>
+              <div className="label">Normalized notes</div>
               <div style={{ marginTop: 6 }} className="mono">
-                {chordTonesChordMode}
+                {normalizedNotes}
               </div>
-              {parsedChord.warnings.length > 0 && (
+
+              {best && chordTonesNotesMode && (
+                <>
+                  <div className="label" style={{ marginTop: 14 }}>
+                    Chord tones (from root)
+                  </div>
+                  <div style={{ marginTop: 6 }} className="mono">
+                    {chordTonesNotesMode}
+                  </div>
+                </>
+              )}
+
+              {parsedNotes.warnings.length > 0 && (
                 <div className="small" style={{ marginTop: 8 }}>
-                  {parsedChord.warnings.join(" · ")}
+                  {parsedNotes.warnings.join(" · ")}
+                </div>
+              )}
+
+              <div className="panel" style={{ marginTop: 16 }}>
+                <div className="label">Best match</div>
+                <div className="big">
+                  {best ? best.name : "No confident match"}
+                </div>
+              </div>
+
+              {candidates.length > 1 && (
+                <div style={{ marginTop: 16 }}>
+                  <div className="label">Also could be</div>
+                  <div className="list">
+                    {candidates.slice(1).map((c) => (
+                      <div key={c.name} className="item">
+                        <div className="itemTitle">{c.name}</div>
+                        <div className="small">
+                          Score: {c.score} · Intervals:{" "}
+                          <span className="mono">
+                            {c.intervalsFromRoot.join(", ")}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </>
-          )}
-        </div>
-      </div>
+          )
+        ) : !parsedChord.ok ? (
+          <div className="panel">
+            <div className="label">Hmm.</div>
+            <div style={{ marginTop: 6 }}>{parsedChord.message}</div>
+            {parsedChord.warnings.length > 0 && (
+              <div className="small" style={{ marginTop: 8 }}>
+                {parsedChord.warnings.join(" · ")}
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="label">Chord tones</div>
+            <div style={{ marginTop: 6 }} className="mono">
+              {chordTonesChordMode}
+            </div>
 
-      <footer>
-        Tip: try <span className="mono">C7</span>, <span className="mono">F#m7b5</span>, <span className="mono">Bbmaj7</span>, or notes like{" "}
-        <span className="mono">C E G Bb</span>.
-      </footer>
+            {parsedChord.warnings.length > 0 && (
+              <div className="small" style={{ marginTop: 8 }}>
+                {parsedChord.warnings.join(" · ")}
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
-  );
-}
+
+    <footer>
+      Tip: try <span className="mono">C7</span>,{" "}
+      <span className="mono">F#m7b5</span>,{" "}
+      <span className="mono">Bbmaj7</span>, or notes like{" "}
+      <span className="mono">C E G Bb</span>.
+    </footer>
+  </div>
+);
