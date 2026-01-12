@@ -67,6 +67,7 @@ export default function ChordApp() {
     const url = buildShareUrl(parsed.normalizedInput);
     await copyText("Link", url);
 
+    // Update URL without reload
     const u = new URL(window.location.href);
     u.searchParams.set("n", parsed.normalizedInput);
     window.history.replaceState({}, "", u.toString());
@@ -85,7 +86,6 @@ export default function ChordApp() {
 
       <div className="card">
         <div className="label">Notes</div>
-
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -112,13 +112,12 @@ export default function ChordApp() {
           {copied && <span className="pill">Copied {copied} ✅</span>}
         </div>
 
-        {/* Results */}
         <div style={{ marginTop: 18 }}>
           {!parsed.ok ? (
             <div className="panel">
               <div className="label">Hmm.</div>
               <div style={{ marginTop: 6 }}>
-                {"error" in parsed ? String(parsed.error) : "Invalid input"}
+                {"message" in parsed ? parsed.message : "Invalid input"}
               </div>
             </div>
           ) : (
