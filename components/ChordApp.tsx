@@ -116,25 +116,28 @@ export default function ChordApp() {
 
       <div className="card">
         {/* Toggle */}
-        <div className="row" style={{ marginBottom: 12 }}>
-          <div className="pill" style={{ padding: 0, overflow: "hidden" }}>
-            <button
-              className="btn"
-              style={{ borderRadius: 9999 }}
-              onClick={() => setMode("notes")}
-              aria-pressed={mode === "notes"}
-            >
-              Notes → Chord
-            </button>
-            <button
-              className="btn"
-              style={{ borderRadius: 9999 }}
-              onClick={() => setMode("chord")}
-              aria-pressed={mode === "chord"}
-            >
-              Chord → Notes
-            </button>
-          </div>
+<div className="row" style={{ marginBottom: 12 }}>
+  <div className="seg" data-active={mode}>
+    <div className="segTrack" />
+    <div className="segThumb" />
+    <button
+      type="button"
+      className="segBtn"
+      onClick={() => setMode("notes")}
+      aria-pressed={mode === "notes"}
+    >
+      Notes → Chord
+    </button>
+    <button
+      type="button"
+      className="segBtn"
+      onClick={() => setMode("chord")}
+      aria-pressed={mode === "chord"}
+    >
+      Chord → Notes
+    </button>
+  </div>
+</div>
         </div>
 
         {/* Input */}
