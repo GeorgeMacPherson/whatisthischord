@@ -63,10 +63,10 @@ export default function ChordApp() {
 
   async function onShare() {
     if (!parsed.ok) return;
+
     const url = buildShareUrl(parsed.normalizedInput);
     await copyText("Link", url);
 
-    // Update URL without reload
     const u = new URL(window.location.href);
     u.searchParams.set("n", parsed.normalizedInput);
     window.history.replaceState({}, "", u.toString());
@@ -85,6 +85,7 @@ export default function ChordApp() {
 
       <div className="card">
         <div className="label">Notes</div>
+
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -103,83 +104,29 @@ export default function ChordApp() {
           >
             Copy chord
           </button>
+
           <button className="btn" onClick={onShare} disabled={!parsed.ok}>
             Copy share link
           </button>
+
           {copied && <span className="pill">Copied {copied} ✅</span>}
         </div>
 
+        {/* Results */}
         <div style={{ marginTop: 18 }}>
-  {!parsed.ok ? (
-    <div className="panel">
-      <div className="label">Hmm.</div>
-      <div style={{ marginTop: 6 }}>{parsed.error}</div>
-    </div>
-  ) : (
-    <>
-      <div className="label">Normalized notes</div>
-      <div style={{ marginTop: 6 }} className="mono">
-        {normalizedNotes}
-      </div>
-
-      {best && chordTones && (
-        <>
-          <div className="label" style={{ marginTop: 14 }}>
-            Chord tones (from root)
-          </div>
-          <div style={{ marginTop: 6 }} className="mono">
-            {chordTones}
-          </div>
-        </>
-      )}
-
-      {parsed.warnings.length > 0 && (
-        <div className="small">{parsed.warnings.join(" · ")}</div>
-      )}
-
-      <div className="panel" style={{ marginTop: 16 }}>
-        <div className="label">Best match</div>
-        <div className="big">{best ? best.name : "No confident match"}</div>
-
-        {best && (
-          <div className="small">
-            Intervals from root:{" "}
-            <span className="mono">{best.intervalsFromRoot.join(", ")}</span>
-            {best.missing.length > 0 && (
-              <>
-                {" "}
-                · Missing: <span className="mono">{best.missing.join(", ")}</span>
-              </>
-            )}
-            {best.extras.length > 0 && (
-              <>
-                {" "}
-                · Extra: <span className="mono">{best.extras.join(", ")}</span>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-
-      {candidates.length > 1 && (
-        <div style={{ marginTop: 16 }}>
-          <div className="label">Also could be</div>
-          <div className="list">
-            {candidates.slice(1).map((c) => (
-              <div key={c.name} className="item">
-                <div className="itemTitle">{c.name}</div>
-                <div className="small">
-                  Score: {c.score} · Intervals:{" "}
-                  <span className="mono">{c.intervalsFromRoot.join(", ")}</span>
-                </div>
+          {!parsed.ok ? (
+            <div className="panel">
+              <div className="label">Hmm.</div>
+              <div style={{ marginTop: 6 }}>
+                {"error" in parsed ? String(parsed.error) : "Invalid input"}
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </>
-  )}
-</div>
+            </div>
+          ) : (
+            <>
+              <div className="label">Normalized notes</div>
+              <div style={{ marginTop: 6 }} className="mono">
+                {normalizedNotes}
+              </div>
 
               {best && chordTones && (
                 <>
