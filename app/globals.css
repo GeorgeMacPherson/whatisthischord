@@ -192,3 +192,73 @@ footer {
 ::selection {
   background: rgba(99, 102, 241, 0.18);
 }
+
+/* Segmented toggle (slider-ish) */
+.seg {
+  position: relative;
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(20, 20, 25, 0.10);
+  background: rgba(255,255,255,0.75);
+  box-shadow: var(--shadow2);
+  user-select: none;
+}
+
+.segTrack {
+  position: absolute;
+  inset: 4px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.45);
+  pointer-events: none;
+}
+
+.segThumb {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: calc(50% - 4px);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(20, 20, 25, 0.10);
+  box-shadow: var(--shadow2);
+  transform: translateX(0);
+  transition: transform 180ms ease;
+  pointer-events: none;
+}
+
+.seg[data-active="chord"] .segThumb {
+  transform: translateX(100%);
+}
+
+.segBtn {
+  position: relative;
+  z-index: 1;
+  border: 0;
+  background: transparent;
+  padding: 10px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 140ms ease, transform 120ms ease;
+}
+
+.segBtn:hover {
+  transform: translateY(-1px);
+  color: var(--text);
+}
+
+.segBtn:active {
+  transform: translateY(0);
+}
+
+.segBtn[aria-pressed="true"] {
+  color: var(--text);
+}
+
+.segBtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 5px var(--focus);
+}
