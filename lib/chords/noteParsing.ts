@@ -40,6 +40,7 @@ const PC_TO_SHARP: string[] = [
   "A#",
   "B",
 ];
+
 const PC_TO_FLAT: string[] = [
   "C",
   "Db",
@@ -81,24 +82,26 @@ export function parseNotesInput(input: string): ParseResult {
       (_, note, acc) => `${note.toUpperCase()}${acc}`
     );
 
-  if (!raw)
+  if (!raw) {
     return {
       ok: false,
       message: "Type some notes (e.g., C E G Bb).",
       warnings: [],
     };
+  }
 
   const tokens = raw
     .split(/[\s,]+/g)
     .map((t) => cleanToken(t))
     .filter(Boolean);
 
-  if (tokens.length === 0)
+  if (tokens.length === 0) {
     return {
       ok: false,
       message: "I couldn't find any notes in that input.",
       warnings: [],
     };
+  }
 
   const pcs: number[] = [];
   const warnings: string[] = [];
@@ -109,6 +112,7 @@ export function parseNotesInput(input: string): ParseResult {
       warnings.push(`Ignored “${t}”`);
       continue;
     }
+
     const letter = m[1].toUpperCase();
     const acc = m[2] ?? "";
     const key = `${letter}${acc}`;
@@ -118,16 +122,18 @@ export function parseNotesInput(input: string): ParseResult {
       warnings.push(`Unknown note “${t}”`);
       continue;
     }
+
     pcs.push(pc);
   }
 
   const unique = Array.from(new Set(pcs));
-  if (unique.length < 2)
+  if (unique.length < 2) {
     return {
       ok: false,
       message: "Please enter at least two distinct notes.",
       warnings,
     };
+  }
 
   return {
     ok: true,
