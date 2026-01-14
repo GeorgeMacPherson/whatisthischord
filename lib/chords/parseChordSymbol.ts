@@ -1,4 +1,5 @@
 // lib/chords/parseChordSymbol.ts
+
 export type ParsedChordSymbol =
   | {
       ok: true;
@@ -33,114 +34,178 @@ const NOTE_TO_PC: Record<string, number> = {
   "B#": 0,
 };
 
-function norm(s: string) {
-  return s
+type Quality = "maj" | "min" | "dim" | "aug" | "sus2" | "sus4";
+
+function norm(input: string) {
+  return input
     .trim()
     .replace(/♭/g, "b")
     .replace(/♯/g, "#")
-    .replace(/\s+/g, "");
+    .replace(/\s+/g, "")
+    .replace(/Ø/g, "ø"); // normalize capital Ø to ø
 }
 
-// Very pragmatic v1 parser:
-// Supports: maj, min/m, dim, aug, sus2/sus4
-// Extensions: 6, 7, maj7, 9, 11, 13
-// Alterations: b5/#5, b9/#9, #11, b13
-// m7b5 supported
 export function parseChordSymbol(input: string): ParsedChordSymbol {
   const s = norm(input);
-  if (!s) return { ok: false, message: "Type a chord symbol (e.g., C7, F#m7b5).", warnings: [] };
+  if (!s) {
+    return { ok: false, message: "Type a chord symbol (e.g., C7, F#m7b5).", warnings: [] };
+  }
 
-  // Root: letter + optional accidental
-  const m = s.match(/^([A-G])([#b]?)(.*)$/i);
+  // Root: letter + optional accidental + rest
+  const m = s.match(/^([A-Ga-g])([#b]?)(.*)$/);
   if (!m) return { ok: false, message: "Couldn’t read the root note.", warnings: [] };
 
   const letter = m[1].toUpperCase();
   const acc = (m[2] ?? "") as "" | "#" | "b";
-  const rest = (m[3] ?? "");
+  let r = m[3] ?? "";
 
   const rootKey = `${letter}${acc}`;
   const rootPc = NOTE_TO_PC[rootKey];
-  if (rootPc === undefined) return { ok: false, message: `Unknown root note “${rootKey}”.`, warnings: [] };
+  if (rootPc === undefined) {
+    return { ok: false, message: `Unknown root note “${rootKey}”.`, warnings: [] };
+  }
 
   const warnings: string[] = [];
-  let quality = "maj"; // maj | min | dim | aug | sus2 | sus4
-  let r = rest;
 
-  // quality tokens
-  // Order matters (maj before m)
-  if (r.startsWith("maj")) { quality = "maj"; r = r.slice(3); }
-  else if (r.startsWith("min")) { quality = "min"; r = r.slice(3); }
-  else if (r.startsWith("m")) { quality = "min"; r = r.slice(1); }
-  else if (r.startsWith("dim")) { quality = "dim"; r = r.slice(3); }
-  else if (r.startsWith("o")) { quality = "dim"; r = r.slice(1); }
-  else if (r.startsWith("aug")) { quality = "aug"; r = r.slice(3); }
-  else if (r.startsWith("+")) { quality = "aug"; r = r.slice(1); }
-  else if (r.startsWith("sus2")) { quality = "sus2"; r = r.slice(4); }
-  else if (r.startsWith("sus4")) { quality = "sus4"; r = r.slice(4); }
-  else if (r.startsWith("sus")) { quality = "sus4"; r = r.slice(3); }
+  // ---- Quality ----
+  let quality: Quality = "maj";
+  const hadHalfDimSymbol = r.startsWith("ø");
 
-  // Base triad intervals
-  let intervals: number[] = [];
-  if (quality === "maj") intervals = [0, 4, 7];
-  if (quality === "min") intervals = [0, 3, 7];
-  if (quality === "dim") intervals = [0, 3, 6];
-  if (quality === "aug") intervals = [0, 4, 8];
-  if (quality === "sus2") intervals = [0, 2, 7];
-  if (quality === "sus4") intervals = [0, 5, 7];
+  // Consume ø if present (we interpret it as half-diminished later)
+  if (hadHalfDimSymbol) r = r.slice(1);
 
-  // Special-case m7b5 commonly written as "m7b5"
-  // If we see "7b5" after minor quality, treat as half-diminished
-  if (quality === "min" && r.startsWith("7b5")) {
-    intervals = [0, 3, 6, 10];
+  // Make quality parsing case-insensitive
+  const rl = r.toLowerCase();
+
+  // Order matters: maj before m
+  if (rl.startsWith("maj")) {
+    quality = "maj";
+    r = r.slice(3);
+  } else if (rl.startsWith("min")) {
+    quality = "min";
+    r = r.slice(3);
+  } else if (r.startsWith("m")) {
+    quality = "min";
+    r = r.slice(1);
+  } else if (rl.startsWith("dim")) {
+    quality = "dim";
+    r = r.slice(3);
+  } else if (r.startsWith("o")) {
+    quality = "dim";
+    r = r.slice(1);
+  } else if (rl.startsWith("aug")) {
+    quality = "aug";
+    r = r.slice(3);
+  } else if (r.startsWith("+")) {
+    quality = "aug";
+    r = r.slice(1);
+  } else if (rl.startsWith("sus2")) {
+    quality = "sus2";
+    r = r.slice(4);
+  } else if (rl.startsWith("sus4")) {
+    quality = "sus4";
+    r = r.slice(4);
+  } else if (rl.startsWith("sus")) {
+    quality = "sus4";
     r = r.slice(3);
   }
 
-  // Extension
+  // ---- Base triad ----
+  let intervals = triadIntervals(quality);
+
+  // ---- Half-diminished handling (m7b5 / ø7) ----
+  // Accept:
+  //  - Cm7b5  (we consumed "m", r starts with "7b5")
+  //  - Cmin7b5 (we consumed "min", r starts with "7b5")
+  //  - Cø7 (we consumed ø, r starts with "7")
+  //  - Cø (treat as half-diminished even without 7)
+  const rLower = r.toLowerCase();
+
+  const isHalfDimByToken = quality === "min" && rLower.startsWith("7b5");
+  const isHalfDim = hadHalfDimSymbol || isHalfDimByToken;
+
+  if (isHalfDim) {
+    // root, m3, b5, b7
+    intervals = [0, 3, 6, 10];
+
+    // consume the obvious markers if present
+    if (rLower.startsWith("7b5")) r = r.slice(3); // "7b5"
+    else if (r.startsWith("7")) r = r.slice(1);
+
+    // swallow redundant "b5" if someone wrote ø7b5
+    if (r.toLowerCase().startsWith("b5")) r = r.slice(2);
+  }
+
+  // ---- Extension ----
   // maj7 explicit
-  if (r.startsWith("maj7")) {
+  if (r.toLowerCase().startsWith("maj7")) {
     intervals = add(intervals, 11);
     r = r.slice(4);
   } else {
     const ext = r.match(/^(6|7|9|11|13)/);
     if (ext) {
       const n = parseInt(ext[1], 10);
+
       if (n === 6) intervals = add(intervals, 9);
       if (n === 7) intervals = add(intervals, 10);
-      if (n === 9) intervals = add(add(intervals, 10), 14);   // b7 + 9
+
+      // For 9/11/13 assume dominant stack: b7 + 9 + 11 + 13
+      if (n === 9) intervals = add(add(intervals, 10), 14);
       if (n === 11) intervals = add(add(add(intervals, 10), 14), 17);
       if (n === 13) intervals = add(add(add(add(intervals, 10), 14), 17), 21);
+
       r = r.slice(ext[1].length);
     }
   }
 
+  // ---- Alterations ----
   // Optional parentheses wrapper for alterations
   if (r.startsWith("(") && r.endsWith(")")) r = r.slice(1, -1);
 
-  // Alterations (very simple tokenization)
-  // examples: b5 #5 b9 #9 #11 b13
-  const altRe = /([b#])(5|9|11|13)/g;
+  const alts: string[] = [];
+  const altRe = /([b#])(5|9|11|13)/gi;
   let altMatch: RegExpExecArray | null;
+
   while ((altMatch = altRe.exec(r))) {
-    const sign = altMatch[1];
+    const sign = altMatch[1] as "b" | "#";
     const degree = parseInt(altMatch[2], 10);
 
     const semitone = degreeToSemitone(degree);
     const adjusted = sign === "b" ? semitone - 1 : semitone + 1;
 
-    // Replace if present, else add
     intervals = replaceOrAdd(intervals, semitone, adjusted);
+    alts.push(`${sign}${degree}`);
   }
 
   // Normalize: unique + sorted
   intervals = Array.from(new Set(intervals)).sort((a, b) => a - b);
 
+  // A more helpful normalizedSymbol (includes extension + alterations)
+  const qualityText =
+    isHalfDim ? "m7b5" :
+    quality === "maj" ? "" :
+    quality === "min" ? "m" :
+    quality;
+
+  const extText = isHalfDim ? "" : extensionFromIntervals(intervals);
+  const altText = alts.length ? `(${uniqPreserve(alts).join("")})` : "";
+
   return {
     ok: true,
     rootPc,
     intervalsFromRoot: intervals,
-    normalizedSymbol: `${letter}${acc}${quality === "maj" ? "" : quality === "min" ? "m" : quality}`,
+    normalizedSymbol: `${letter}${acc}${qualityText}${extText}${altText}`,
     warnings,
   };
+}
+
+function triadIntervals(q: Quality): number[] {
+  if (q === "maj") return [0, 4, 7];
+  if (q === "min") return [0, 3, 7];
+  if (q === "dim") return [0, 3, 6];
+  if (q === "aug") return [0, 4, 8];
+  if (q === "sus2") return [0, 2, 7];
+  return [0, 5, 7]; // sus4
 }
 
 function add(arr: number[], v: number) {
@@ -148,9 +213,9 @@ function add(arr: number[], v: number) {
 }
 
 function replaceOrAdd(arr: number[], target: number, replacement: number) {
-  const hasTarget = arr.includes(target);
-  const next = hasTarget ? arr.map((x) => (x === target ? replacement : x)) : [...arr, replacement];
-  return next;
+  return arr.includes(target)
+    ? arr.map((x) => (x === target ? replacement : x))
+    : [...arr, replacement];
 }
 
 // Degree to semitone above root, assuming default extensions:
@@ -161,4 +226,33 @@ function degreeToSemitone(deg: number) {
   if (deg === 11) return 17;
   if (deg === 13) return 21;
   return 0;
+}
+
+// Best-effort: infer extension label from intervals
+function extensionFromIntervals(intervals: number[]) {
+  const has = (n: number) => intervals.includes(n);
+
+  // maj7
+  if (has(11)) return "maj7";
+
+  // dominant stack
+  if (has(10) && has(21)) return "13";
+  if (has(10) && has(17)) return "11";
+  if (has(10) && has(14)) return "9";
+  if (has(10)) return "7";
+  if (has(9)) return "6";
+
+  return "";
+}
+
+function uniqPreserve(items: string[]) {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const it of items) {
+    if (!seen.has(it)) {
+      seen.add(it);
+      out.push(it);
+    }
+  }
+  return out;
 }
