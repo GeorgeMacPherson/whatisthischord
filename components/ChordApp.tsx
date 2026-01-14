@@ -1,5 +1,5 @@
 "use client";
-
+import { parseChordSymbol } from "../lib/chords/parseChordSymbol";
 import { useEffect, useMemo, useState } from "react";
 import { detectChord } from "../lib/chords/detectChord";
 import {
@@ -23,75 +23,6 @@ function buildShareUrl(params: Record<string, string>) {
   u.searchParams.delete("mode");
   for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
   return u.toString();
-}
-
-function parseChordSymbol(input: string): { ok: true; pcs: number[]; message?: string; warnings: string[] } | { ok: false; message: string; warnings: string[] } {
-  const raw = input
-    .trim()
-    .replace(/♭/g, "b")
-    .replace(/♯/g, "#");
-
-  if (!raw) return { ok: false, message: "Type a chord symbol (e.g., C7, F#m7b5, Bbmaj7).", warnings: [] };
-
-  // Root: letter + optional #/b
-  const m = raw.match(/^([A-Ga-g])([#b]?)(.*)$/);
-  if (!m) return { ok: false, message: "Could not read the root note.", warnings: [] };
-
-  const root = `${m[1].toUpperCase()}${m[2] ?? ""}`;
-  const qual = (m[3] ?? "").trim();
-
-  // Map root to pitch class using your existing parser by feeding it one token.
-  const rootParsed = parseNotesInput(root);
-  if (!rootParsed.ok) return { ok: false, message: `Unknown root note “${root}”.`, warnings: [] };
-  const rootPc = rootParsed.notes[0];
-
-  const warnings: string[] = [];
-
-  // Very small “good enough” quality parser.
-  // Triad defaults to major.
-  let intervals: number[] = [0, 4, 7];
-
-  const q = qual
-    .replace(/\s+/g, "")
-    .replace(/^maj/i, "maj")
-    .replace(/^min/i, "m");
-
-  const isMinor = /^m(?!aj)/i.test(q); // m, m7, m6...
-  const isDim = /^dim/i.test(q) || /o/.test(q);
-  const isAug = /^aug/i.test(q) || /\+/.test(q);
-  const isSus2 = /^sus2/i.test(q);
-  const isSus4 = /^sus4/i.test(q) || /^sus/i.test(q);
-
-  if (isSus2) intervals = [0, 2, 7];
-  else if (isSus4) intervals = [0, 5, 7];
-  else if (isDim) intervals = [0, 3, 6];
-  else if (isAug) intervals = [0, 4, 8];
-  else if (isMinor) intervals = [0, 3, 7];
-  else intervals = [0, 4, 7];
-
-  // Sevenths / extensions (minimal set)
-  const hasMaj7 = /maj7/i.test(q) || /M7/.test(q);
-  const has7 = /7/.test(q);
-
-  if (hasMaj7) intervals = [...intervals, 11];
-  else if (has7) intervals = [...intervals, 10];
-
-  // Half-diminished m7b5 / ø7
-  if (/m7b5/i.test(q) || /ø/.test(q)) {
-    intervals = [0, 3, 6, 10];
-  }
-
-  // Add b5 / #5 tweaks (very minimal)
-  if (/b5/.test(q)) intervals = intervals.map((x) => (x === 7 ? 6 : x));
-  if (/#5/.test(q)) intervals = intervals.map((x) => (x === 7 ? 8 : x));
-
-  const pcs = Array.from(new Set(intervals.map((i) => (rootPc + i) % 12)));
-
-  if (pcs.length < 2) {
-    return { ok: false, message: "That chord symbol didn’t produce enough notes.", warnings };
-  }
-
-  return { ok: true, pcs, warnings };
 }
 
 export default function ChordApp() {
@@ -137,11 +68,15 @@ export default function ChordApp() {
   const preferFlatsChord = useMemo(() => preferFlatsFromInput(chordInput), [chordInput]);
   const parsedChord = useMemo(() => parseChordSymbol(chordInput), [chordInput]);
 
-  const chordNotesFromSymbol = useMemo(() => {
-    if (!parsedChord.ok) return null;
-    const pcs = normalizePitchClasses(parsedChord.pcs);
-    return notesList(pcs, preferFlatsChord);
-  }, [parsedChord, preferFlatsChord]);
+const chordNotesFromSymbol = useMemo(() => {
+  if (!parsedChord.ok) return null;
+
+  // Build pitch-classes from root + intervals
+  const pcs = parsedChord.intervalsFromRoot.map((i) => (parsedChord.rootPc + i) % 12);
+  const normPcs = normalizePitchClasses(pcs);
+
+  return notesList(normPcs, preferFlatsChord);
+}, [parsedChord, preferFlatsChord]);
 
   async function copyText(label: string, text: string) {
     if (!text) return;
