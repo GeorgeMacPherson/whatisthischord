@@ -243,7 +243,9 @@ const chordNotesFromSymbol = useMemo(() => {
           ) : !parsedChord.ok ? (
             <div className="panel">
               <div className="label">Hmm.</div>
-              <div style={{ marginTop: 6 }}>{!parsedChord.ok ? parsedChord.message : ""}</div>
+              <div style={{ marginTop: 6 }}>
+  {"message" in parsedChord ? parsedChord.message : ""}
+</div>
               {parsedChord.warnings.length > 0 && (
                 <div className="small" style={{ marginTop: 8 }}>
                   {parsedChord.warnings.join(" · ")}
