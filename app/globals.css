@@ -105,6 +105,49 @@ h1 {
 .bmc-btn:active {
   transform: translateY(0);
 }
+.bmc {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: right;
+}
+
+.bmc-text {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.bmc-btn {
+  background: #ffdd00;
+  color: #000;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+}
+
+/* 📱 Mobile polish */
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .bmc {
+    flex-direction: row;
+    align-self: flex-end;
+    text-align: right;
+  }
+
+  .bmc-text {
+    display: none;
+  }
+}
 
 /* ---------- CARD ---------- */
 
