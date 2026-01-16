@@ -72,11 +72,21 @@ export default function ChordApp() {
 const chordNotesFromSymbol = useMemo(() => {
   if (!parsedChord.ok) return null;
 
-  // Build pitch-classes from root + intervals
-  const pcs = parsedChord.intervalsFromRoot.map((i) => (parsedChord.rootPc + i) % 12);
-  const normPcs = normalizePitchClasses(pcs);
+  // Keep "built-from-root" order (root, 3rd, 5th, 7th, 9th...)
+  const orderedPcs = parsedChord.intervalsFromRoot.map(
+    (i) => (parsedChord.rootPc + i) % 12
+  );
 
-  return notesList(normPcs, preferFlatsChord);
+  // Convert to names in that same order (and de-dupe just in case)
+  const names: string[] = [];
+  const seen = new Set<number>();
+  for (const pc of orderedPcs) {
+    if (seen.has(pc)) continue;
+    seen.add(pc);
+    names.push(pcToName(pc, preferFlatsChord));
+  }
+
+  return names.join(" ");
 }, [parsedChord, preferFlatsChord]);
 
   async function copyText(label: string, text: string) {
