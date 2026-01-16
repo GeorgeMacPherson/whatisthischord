@@ -77,38 +77,49 @@ export function parseChordSymbol(input: string): ParsedChordSymbol {
   // Make quality parsing case-insensitive
   const rl = r.toLowerCase();
 
-  // Order matters: maj before m
-  if (rl.startsWith("maj")) {
-    quality = "maj";
-    r = r.slice(3);
-  } else if (rl.startsWith("min")) {
-    quality = "min";
-    r = r.slice(3);
-  } else if (r.startsWith("m")) {
-    quality = "min";
-    r = r.slice(1);
-  } else if (rl.startsWith("dim")) {
-    quality = "dim";
-    r = r.slice(3);
-  } else if (r.startsWith("o")) {
-    quality = "dim";
-    r = r.slice(1);
-  } else if (rl.startsWith("aug")) {
-    quality = "aug";
-    r = r.slice(3);
-  } else if (r.startsWith("+")) {
-    quality = "aug";
-    r = r.slice(1);
-  } else if (rl.startsWith("sus2")) {
-    quality = "sus2";
-    r = r.slice(4);
-  } else if (rl.startsWith("sus4")) {
-    quality = "sus4";
-    r = r.slice(4);
-  } else if (rl.startsWith("sus")) {
-    quality = "sus4";
-    r = r.slice(3);
-  }
+  if (rl.startsWith("maj7")) {
+  // Don't treat "maj7" as just quality = maj + ext = 7 (dominant).
+  quality = "maj";
+} else if (rl.startsWith("maj")) {
+  quality = "maj";
+  r = r.slice(3);
+}
+  // quality tokens (order matters: maj7 before maj, maj before m)
+if (rl.startsWith("maj7")) {
+  // Leave "maj7" in r so the extension parser can add the major 7 (11)
+  quality = "maj";
+  // IMPORTANT: do not slice r here
+} else if (rl.startsWith("maj")) {
+  quality = "maj";
+  r = r.slice(3);
+} else if (rl.startsWith("min")) {
+  quality = "min";
+  r = r.slice(3);
+} else if (rl.startsWith("m")) {
+  quality = "min";
+  r = r.slice(1);
+} else if (rl.startsWith("dim")) {
+  quality = "dim";
+  r = r.slice(3);
+} else if (rl.startsWith("o")) {
+  quality = "dim";
+  r = r.slice(1);
+} else if (rl.startsWith("aug")) {
+  quality = "aug";
+  r = r.slice(3);
+} else if (rl.startsWith("+")) {
+  quality = "aug";
+  r = r.slice(1);
+} else if (rl.startsWith("sus2")) {
+  quality = "sus2";
+  r = r.slice(4);
+} else if (rl.startsWith("sus4")) {
+  quality = "sus4";
+  r = r.slice(4);
+} else if (rl.startsWith("sus")) {
+  quality = "sus4";
+  r = r.slice(3);
+}
 
   // ---- Base triad ----
   let intervals = triadIntervals(quality);
