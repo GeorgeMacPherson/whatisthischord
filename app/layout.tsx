@@ -3,12 +3,15 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://whatisthischord.vercel.app"),
+
   title: "What Chord Is This? – Free Chord Identifier",
   description:
     "Type in notes like C E G Bb and instantly get the most likely chord name, chord tones, and alternate interpretations.",
+
   alternates: {
     canonical: "/",
   },
+
   openGraph: {
     title: "What Chord Is This?",
     description: "Identify a chord from a set of notes. Try: C E G Bb.",
@@ -16,21 +19,14 @@ export const metadata: Metadata = {
     siteName: "What Chord Is This?",
     type: "website",
   },
+
   twitter: {
     card: "summary_large_image",
     title: "What Chord Is This?",
     description: "Identify a chord from a set of notes. Try: C E G Bb.",
   },
-};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  );
-}
+  verification: {
+    google: "OY6WIVv614Kln3eSSRDS38SMYuHWyv2b_7hn4BtdhmM",
+  },
+};
