@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://whatisthischord.vercel.app"),
-  title: {
-    default: "What Chord Is This? | Identify a chord from notes",
-    template: "%s | What Chord Is This?",
-  },
+  export const metadata = {
+  title: "What Chord Is This? – Free Chord Identifier",
+  description: "Instantly identify chords from notes or chord symbols.",
+};,
   description:
     "Type in notes like C E G Bb and instantly get the most likely chord name, chord tones, and alternate interpretations.",
   alternates: {
