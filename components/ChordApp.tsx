@@ -3,7 +3,7 @@ import { spellChordTonesFromSymbol } from "../lib/chords/spellFromSymbol";
 import { parseChordSymbol } from "../lib/chords/parseChordSymbol";
 import { useEffect, useMemo, useState } from "react";
 import { detectChord } from "../lib/chords/detectChord";
-import Script from "next/script";
+
 import {
   parseNotesInput,
   preferFlatsFromInput,
