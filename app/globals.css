@@ -262,3 +262,19 @@ footer {
   outline: none;
   box-shadow: 0 0 0 5px var(--focus);
 }
+
+.bmc {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bmc-btn {
+  background: #ffdd00;
+  color: #000;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid #000;
+}
