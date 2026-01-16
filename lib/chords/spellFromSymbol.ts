@@ -85,8 +85,8 @@ export function spellChordTonesFromSymbol(
   const rootPc = applyAccToPc(rootLetter, rootParsed.acc);
 
   // Keep order: tonic upwards, sorted by interval (0, 3/4, 7, 10/11, 14...)
-  const ordered = [...new Set(intervalsFromRoot)].sort((a, b) => a - b);
-
+const ordered = Array.from(new Set(intervalsFromRoot)).sort((a, b) => a - b);
+  
   const out: string[] = [];
 
   for (const semis of ordered) {
