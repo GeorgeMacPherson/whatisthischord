@@ -126,24 +126,17 @@ const chordNotesFromSymbol = useMemo(() => {
           <span className="mono">chord symbol</span>.
         </div>
       </div>
-
       <div className="bmc">
-        <span className="bmc-text">Found this useful?</span>
-
-        <Script
-          src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js"
-          strategy="afterInteractive"
-          data-name="bmc-button"
-          data-slug="Georgemacpherson"
-          data-color="#FFDD00"
-          data-emoji=""
-          data-font="Lato"
-          data-text="Buy me a coffee"
-          data-outline-color="#000000"
-          data-font-color="#000000"
-          data-coffee-color="#ffffff"
-        />
-      </div>
+  <span className="bmc-text">Found this useful?</span>
+  <a
+    href="https://www.buymeacoffee.com/Georgemacpherson"
+    target="_blank"
+    rel="noreferrer"
+    className="bmc-btn"
+  >
+    ☕ Buy me a coffee
+  </a>
+</div>
     </header>
 
       <div className="card">
