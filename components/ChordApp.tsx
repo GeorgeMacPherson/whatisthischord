@@ -116,14 +116,20 @@ const chordNotesFromSymbol = useMemo(() => {
     mode === "notes" ? (best?.name ?? "") : (chordNotesFromSymbol ?? "");
 
   return (
-    <div className="container">
-      <header>
-        <h1>What Chord Is This?</h1>
-        <div className="subtitle">
-          Switch between entering <span className="mono">notes</span> or a{" "}
-          <span className="mono">chord symbol</span>.
-        </div>
-      </header>
+      <header className="header">
+  <div>
+    <h1>What Chord Is This?</h1>
+    <div className="subtitle">
+      Switch between entering <span className="mono">notes</span> or a{" "}
+      <span className="mono">chord symbol</span>.
+    </div>
+  </div>
+
+  <div className="bmc">
+    <span className="bmc-text">Found this useful?</span>
+    <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="Georgemacpherson" data-color="#FFDD00" data-emoji=""  data-font="Lato" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script>
+  </div>
+</header>
 
       <div className="card">
         <div className="row" style={{ marginBottom: 10 }}>
