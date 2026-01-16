@@ -3,10 +3,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://whatisthischord.vercel.app"),
-  export const metadata = {
   title: "What Chord Is This? – Free Chord Identifier",
-  description: "Instantly identify chords from notes or chord symbols.",
-};,
   description:
     "Type in notes like C E G Bb and instantly get the most likely chord name, chord tones, and alternate interpretations.",
   alternates: {
@@ -14,8 +11,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "What Chord Is This?",
-    description:
-      "Identify a chord from a set of notes. Try: C E G Bb.",
+    description: "Identify a chord from a set of notes. Try: C E G Bb.",
     url: "/",
     siteName: "What Chord Is This?",
     type: "website",
@@ -23,8 +19,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "What Chord Is This?",
-    description:
-      "Identify a chord from a set of notes. Try: C E G Bb.",
+    description: "Identify a chord from a set of notes. Try: C E G Bb.",
   },
 };
 
