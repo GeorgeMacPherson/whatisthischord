@@ -22,8 +22,8 @@ html, body { height: 100%; }
 body {
   margin: 0;
   color: var(--text);
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji",
-    "Segoe UI Emoji";
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+    "Apple Color Emoji", "Segoe UI Emoji";
   background:
     radial-gradient(900px 520px at 20% 10%, rgba(99, 102, 241, 0.12), transparent 55%),
     radial-gradient(900px 520px at 80% 15%, rgba(236, 72, 153, 0.10), transparent 60%),
@@ -37,8 +37,18 @@ body {
   padding: 34px 18px 70px;
 }
 
-header {
+/* ---------- HEADER ---------- */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
   margin-bottom: 18px;
+}
+
+.header-left {
+  max-width: 70%;
 }
 
 h1 {
@@ -56,9 +66,36 @@ h1 {
 }
 
 .mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
   font-variant-ligatures: none;
 }
+
+/* ---------- BUY ME A COFFEE ---------- */
+
+.bmc {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  opacity: 0.85;
+}
+
+.bmc-text {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+/* Shrink the injected button slightly */
+.bmc iframe,
+.bmc button {
+  transform: scale(0.9);
+  transform-origin: top right;
+}
+
+/* ---------- CARD ---------- */
 
 .card {
   margin-top: 18px;
@@ -188,93 +225,7 @@ footer {
   line-height: 1.5;
 }
 
-/* Slightly nicer selection */
+/* Selection */
 ::selection {
   background: rgba(99, 102, 241, 0.18);
-}
-
-/* Segmented toggle (slider-ish) */
-.seg {
-  position: relative;
-  display: inline-flex;
-  padding: 4px;
-  border-radius: 999px;
-  border: 1px solid rgba(20, 20, 25, 0.10);
-  background: rgba(255,255,255,0.75);
-  box-shadow: var(--shadow2);
-  user-select: none;
-}
-
-.segTrack {
-  position: absolute;
-  inset: 4px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.45);
-  pointer-events: none;
-}
-
-.segThumb {
-  position: absolute;
-  top: 4px;
-  bottom: 4px;
-  width: calc(50% - 4px);
-  border-radius: 999px;
-  background: rgba(255,255,255,0.92);
-  border: 1px solid rgba(20, 20, 25, 0.10);
-  box-shadow: var(--shadow2);
-  transform: translateX(0);
-  transition: transform 180ms ease;
-  pointer-events: none;
-}
-
-.seg[data-active="chord"] .segThumb {
-  transform: translateX(100%);
-}
-
-.segBtn {
-  position: relative;
-  z-index: 1;
-  border: 0;
-  background: transparent;
-  padding: 10px 12px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--muted);
-  cursor: pointer;
-  transition: color 140ms ease, transform 120ms ease;
-}
-
-.segBtn:hover {
-  transform: translateY(-1px);
-  color: var(--text);
-}
-
-.segBtn:active {
-  transform: translateY(0);
-}
-
-.segBtn[aria-pressed="true"] {
-  color: var(--text);
-}
-
-.segBtn:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 5px var(--focus);
-}
-
-.bmc {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.bmc-btn {
-  background: #ffdd00;
-  color: #000;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-weight: 600;
-  text-decoration: none;
-  border: 1px solid #000;
 }
