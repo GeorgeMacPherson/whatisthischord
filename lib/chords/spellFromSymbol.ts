@@ -34,18 +34,41 @@ function parseRootSpelling(root: string): { letter: Letter; acc: string; pc: num
 // Map semitone intervals to diatonic scale degrees (relative to root letter)
 // 1,3,5,7,9,11,13 -> steps: 0,2,4,6,1,3,5 (mod 7)
 function intervalToDegreeSteps(i: number): number {
-  const x = mod(i, 24); // enough to cover up to 13ths
-  if (x === 0) return 0;                    // 1
-  if (x === 1 || x === 2) return 1;         // 2 / 9
-  if (x === 3 || x === 4) return 2;         // 3
-  if (x === 5 || x === 6) return 3;         // 4 / #11
-  if (x === 7 || x === 8) return 4;         // 5
-  if (x === 9 || x === 10) return 5;        // 6 / 13
-  if (x === 11) return 6;                   // 7 (maj7)
-  if (x === 13 || x === 14) return 1;       // b9 / 9
-  if (x === 15 || x === 16) return 2;       // #9 / 3-ish
-  if (x === 17 || x === 18) return 3;       // 11 / #11
-  if (x === 20 || x === 21) return 5;       // b13 / 13
+  const x = mod(i, 24);
+
+  // 1
+  if (x === 0) return 0;
+
+  // 2 / 9
+  if (x === 1 || x === 2) return 1;
+
+  // 3
+  if (x === 3 || x === 4) return 2;
+
+  // 4 / 11
+  if (x === 5 || x === 6) return 3;
+
+  // 5
+  if (x === 7 || x === 8) return 4;
+
+  // 6
+  if (x === 9) return 5;
+
+  // 7 (b7=10, maj7=11)
+  if (x === 10 || x === 11) return 6;
+
+  // 9 / b9
+  if (x === 13 || x === 14) return 1;
+
+  // #9-ish
+  if (x === 15 || x === 16) return 2;
+
+  // 11 / #11
+  if (x === 17 || x === 18) return 3;
+
+  // 13 / b13
+  if (x === 20 || x === 21) return 5;
+
   return 0;
 }
 
