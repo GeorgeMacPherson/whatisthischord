@@ -1,4 +1,5 @@
 "use client";
+import { spellChordTonesFromSymbol } from "../lib/chords/spellFromSymbol";
 import { parseChordSymbol } from "../lib/chords/parseChordSymbol";
 import { useEffect, useMemo, useState } from "react";
 import { detectChord } from "../lib/chords/detectChord";
@@ -72,22 +73,12 @@ export default function ChordApp() {
 const chordNotesFromSymbol = useMemo(() => {
   if (!parsedChord.ok) return null;
 
-  // Keep "built-from-root" order (root, 3rd, 5th, 7th, 9th...)
-  const orderedPcs = parsedChord.intervalsFromRoot.map(
-    (i) => (parsedChord.rootPc + i) % 12
-  );
+  // Use the user's actual root spelling from the input (so "F" stays "F", "Bb" stays "Bb", etc.)
+  const rootMatch = chordInput.trim().match(/^([A-Ga-g])([#b]{0,2})/);
+  const rootSymbol = rootMatch ? `${rootMatch[1].toUpperCase()}${rootMatch[2] ?? ""}` : chordInput.trim();
 
-  // Convert to names in that same order (and de-dupe just in case)
-  const names: string[] = [];
-  const seen = new Set<number>();
-  for (const pc of orderedPcs) {
-    if (seen.has(pc)) continue;
-    seen.add(pc);
-    names.push(pcToName(pc, preferFlatsChord));
-  }
-
-  return names.join(" ");
-}, [parsedChord, preferFlatsChord]);
+  return spellChordTonesFromSymbol(rootSymbol, parsedChord.intervalsFromRoot);
+}, [parsedChord, chordInput]);
 
   async function copyText(label: string, text: string) {
     if (!text) return;
